@@ -1,4 +1,4 @@
-module org.example.ica1 {
+module org.ica1 {
   requires javafx.controls;
   requires javafx.fxml;
   

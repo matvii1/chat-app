@@ -1,9 +1,9 @@
-package org.example.ica1.FileParser;
+package org.example.ica1.Message;
 
 public class Message {
-   public String time;
-   public String name;
-   public String message;
+  public String time;
+  public String name;
+  public String message;
   
   public Message(String time, String name, String message) {
     this.time = time;

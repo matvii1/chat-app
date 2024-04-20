@@ -1,9 +1,10 @@
 package org.example.ica1.FileParser;
 
+import org.example.ica1.Message.Message;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Objects;
 import java.util.Scanner;
 
@@ -18,7 +19,7 @@ public class FileParser {
       String name = null;
       String time = null;
       String message = null;
-      
+
 //      ORDER does matter!!!
       if (scanner.hasNextLine()) {
         String nextLine = scanner.nextLine();

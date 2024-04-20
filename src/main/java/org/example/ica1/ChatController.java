@@ -1,43 +1,43 @@
 package org.example.ica1;
 
-import javafx.fxml.Initializable;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
 import javafx.geometry.Insets;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
-//import org.example.ica1.FileParser.ChatMessage;
-import javafx.scene.text.TextFlow;
-import org.example.ica1.FileParser.FileParser;
-
-import org.example.ica1.FileParser.Message;
-//import org.example.ica1.FileParser.ChatMessageCell;
-import javafx.event.ActionEvent;
-import javafx.fxml.FXML;
-import javafx.scene.control.Button;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import org.example.ica1.FileParser.FileParser;
+import org.example.ica1.Message.Message;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Objects;
-import java.util.ResourceBundle;
 
 public class ChatController {
   @FXML
   private Button uploadButton;
   @FXML
   private VBox vlistView;
+  @FXML
+  private Label fileName;
   
   @FXML
   void onHelloButtonClick(ActionEvent event) throws FileNotFoundException {
     vlistView.getChildren().clear();
+    
+    File file = OpenFile();
+    displayMessages(file);
+  }
+  
+  File OpenFile() {
     FileChooser fileChooser = new FileChooser();
     fileChooser.setTitle("Open Text File");
     FileChooser.ExtensionFilter txtFilter = new FileChooser.ExtensionFilter("Text files (*.txt, *.msg)", "*.txt", "*.msg");
@@ -52,19 +52,33 @@ public class ChatController {
       
       vlistView.getChildren().clear();
       vlistView.getChildren().add(errorMsg);
-      
-      return;
     }
     
-    File file = new File(selectedFile.getAbsolutePath());
+    String filePath = selectedFile.getAbsolutePath();
+    
+    fileName.setText(selectedFile.getName() + "\n" + filePath);
+    
+    return new File(selectedFile.getAbsolutePath());
+  }
+  
+  void displayMessages(File file) throws FileNotFoundException {
     ArrayList<Message> messages = FileParser.parseChatFile(file);
     
     for (int i = 0; i < messages.size(); i++) {
       Message currentMessage = messages.get(i);
+      String previousName = null;
       
+      if (i > 0) {
+        previousName = messages.get(i - 1).name;
+      }
       
-      Text time = new Text("[" + currentMessage.time + "]");
-      Text name = new Text(currentMessage.name);
+      boolean isSameName = Objects.equals(currentMessage.name, previousName);
+      String formattedName = isSameName ? "..." : currentMessage.name;
+      
+      Text time = new Text("[" + currentMessage.time + "] ");
+      Text name = new Text(formattedName + ": ");
+      
+      name.setStyle("-fx-fill: blue;");
       
       HBox messageContainer = new HBox();
       
@@ -93,21 +107,20 @@ public class ChatController {
         }
       }
       
-      // Create a VBox to hold the labels
-      VBox vbox = new VBox(0); // Set spacing between labels
-      vbox.setPadding(new Insets(5)); // Set padding around the VBox
-      vbox.getChildren().addAll(time, name, messageContainer);
+      HBox hbox = new HBox(0);
+      hbox.setPadding(new Insets(5));
+      hbox.getChildren().addAll(time, name, messageContainer);
       
-      vlistView.getChildren().add(vbox);
+      vlistView.getChildren().add(hbox);
+      
     }
     
     if (messages.isEmpty()) {
-      
-      Text errorMsg = new Text("Invalid format");
-      errorMsg.setStyle("-fx-font-weight: bold; -fx-font-size: 14;");
+      Alert alert = new Alert(Alert.AlertType.ERROR, "Invalid chat format");
+      alert.show();
       
       vlistView.getChildren().clear();
-      vlistView.getChildren().add(errorMsg);
+      
     }
   }
 }
